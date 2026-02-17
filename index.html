@@ -472,6 +472,12 @@ body {
   transition: transform 600ms cubic-bezier(.2,.9,.2,1), box-shadow 600ms ease, z-index 0ms;
   transform-style: preserve-3d;
 }
+/* Collapsed: 福 (middle, child 4) on top */
+.env-card:nth-child(2) { z-index: 1; }
+.env-card:nth-child(3) { z-index: 2; }
+.env-card:nth-child(4) { z-index: 5; }
+.env-card:nth-child(5) { z-index: 2; }
+.env-card:nth-child(6) { z-index: 1; }
 .env-card::before {
   content: ''; position: absolute; inset: 6px;
   border: 1.5px solid var(--gold); border-radius: 6px; pointer-events: none;
@@ -834,11 +840,11 @@ body {
           <div class="envelope-lucky">
             <img src="Lucky%20in%20chinese.png" alt="Lucky">
           </div>
-          <div class="env-card"><span class="env-card-fu">福</span><span class="env-card-label">Good Fortune</span></div>
-          <div class="env-card"><span class="env-card-fu">福</span><span class="env-card-label">Good Fortune</span></div>
-          <div class="env-card"><span class="env-card-fu">福</span><span class="env-card-label">Good Fortune</span></div>
-          <div class="env-card"><span class="env-card-fu">福</span><span class="env-card-label">Good Fortune</span></div>
-          <div class="env-card"><span class="env-card-fu">福</span><span class="env-card-label">Good Fortune</span></div>
+          <div class="env-card"><span class="env-card-fu">金</span><span class="env-card-label">Gold</span></div>
+          <div class="env-card"><span class="env-card-fu">马</span><span class="env-card-label">Horse</span></div>
+          <div class="env-card"><span class="env-card-fu">福</span><span class="env-card-label">Fortune</span></div>
+          <div class="env-card"><span class="env-card-fu">运</span><span class="env-card-label">Luck</span></div>
+          <div class="env-card"><span class="env-card-fu">来</span><span class="env-card-label">Arrives</span></div>
         </div>
         <p class="envelope-hint">Click to open your red envelope</p>
       </div>
