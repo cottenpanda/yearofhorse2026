@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Zodiac Gazette</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Playfair+Display:ital,wght@0,400;0,700;0,900&family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --parchment: #f4e4c1;
+  --ink: #2a1a0a;
+  --ink-light: #4a3a2a;
+  --ink-faded: #6a5a4a;
+  --rule: #9a8a7a;
+  --red-accent: #b22222;
+  --gold: #c8a84e;
+}
+
+body {
+  background: #3a2a1a;
+  font-family: 'Lora', 'Georgia', serif;
+  color: var(--ink);
+  line-height: 1.5;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==================== OPENING SCENE (PARALLAX) ==================== */
+.opening-scene {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100vh;
+  z-index: 0;
+  background: #3a2a1a;
+}
+.opening-scene img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+/* Text overlay — top right */
+.opening-text {
+  position: absolute; top: 8%; right: 8%;
+  text-align: right;
+  color: var(--parchment);
+}
+.opening-year {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900; font-size: 4.5rem;
+  line-height: 1; letter-spacing: 0.05em;
+  opacity: 0.85;
+}
+.opening-title {
+  font-family: 'UnifrakturMaguntia', serif;
+  font-size: 2rem; line-height: 1.2;
+  margin-top: 4px;
+  opacity: 0.9;
+}
+.opening-sub {
+  font-family: 'Playfair Display', serif;
+  font-style: italic; font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  opacity: 0.6; margin-top: 8px;
+}
+
+.opening-scroll-hint {
+  position: absolute; bottom: 30px; left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.8rem; color: rgba(255,255,255,0.6);
+  letter-spacing: 0.1em;
+  animation: bobDown 2s ease-in-out infinite;
+}
+.opening-scroll-hint::after {
+  content: '▾'; display: block; text-align: center;
+  font-size: 1.2rem; margin-top: 4px;
+}
+@keyframes bobDown {
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.5; }
+  50% { transform: translateX(-50%) translateY(6px); opacity: 1; }
+}
+
+/* Spacer pushes the newspaper below the viewport */
+.opening-spacer {
+  height: 100vh;
+  pointer-events: none;
+}
+
+/* ==================== NEWSPAPER SHELL ==================== */
+.newspaper {
+  max-width: 880px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(180, 140, 80, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 30%, rgba(160, 120, 60, 0.1) 0%, transparent 40%),
+    linear-gradient(to bottom, #f0ddb0, var(--parchment) 5%, var(--parchment) 95%, #e0ccaa);
+  box-shadow: 0 -8px 30px rgba(0,0,0,0.4), 0 0 40px rgba(0,0,0,0.5);
+}
+
+/* Ink loading — sections start invisible, appear on scroll */
+.ink-in {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.ink-in.visible {
+  opacity: 1;
+  transform: none;
+}
+
+.newspaper::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: var(--noise-texture);
+  background-size: 256px 256px;
+  background-repeat: repeat;
+  opacity: 0.7;
+  mix-blend-mode: multiply;
+  pointer-events: none; z-index: 1;
+}
+
+
+.paper-texture {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 1;
+}
+
+.edge-burn {
+  position: absolute; inset: 0;
+  box-shadow:
+    inset 0 0 100px rgba(80, 50, 15, 0.5),
+    inset 0 0 250px rgba(60, 35, 5, 0.25),
+    inset 5px 5px 25px rgba(90, 60, 20, 0.2),
+    inset -5px -5px 25px rgba(90, 60, 20, 0.2);
+  pointer-events: none; z-index: 2;
+}
+
+.fold-crease {
+  position: absolute; left: 0; right: 0; height: 1px;
+  background: linear-gradient(to right, transparent 5%, rgba(100, 70, 30, 0.12) 15%, rgba(100, 70, 30, 0.08) 50%, rgba(100, 70, 30, 0.12) 85%, transparent 95%);
+  z-index: 2; pointer-events: none;
+}
+
+.fold-v {
+  position: absolute; top: 0; bottom: 0; width: 1px;
+  background: linear-gradient(to bottom, transparent 5%, rgba(100, 70, 30, 0.1) 15%, rgba(100, 70, 30, 0.06) 50%, rgba(100, 70, 30, 0.1) 85%, transparent 95%);
+  z-index: 2; pointer-events: none;
+}
+
+.content { position: relative; z-index: 3; padding: 0 30px; }
+
+/* ==================== TYPOGRAPHY ==================== */
+.col-text {
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--ink-light);
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
+.col-text p + p { text-indent: 1.2em; }
+
+.dropcap {
+  float: left; font-family: 'Playfair Display', serif;
+  font-size: 2.8rem; font-weight: 700; line-height: 0.82;
+  padding: 2px 5px 0 0; color: var(--ink);
+}
+
+/* ==================== RULES ==================== */
+.rule-thin { border: none; border-top: 1px solid var(--rule); margin: 0; }
+.rule-thick { border: none; border-top: 2px solid var(--ink); margin: 0; }
+.rule-double { position: relative; height: 5px; margin: 0; }
+.rule-double::before { content: ''; position: absolute; top: 0; left: 0; right: 0; border-top: 2px solid var(--ink); }
+.rule-double::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; border-top: 1px solid var(--ink); }
+
+/* ==================== MASTHEAD ==================== */
+.masthead-section { padding: 40px 0 0; }
+.masthead { text-align: center; }
+
+.masthead-top {
+  display: flex; justify-content: space-between;
+  font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink-faded); margin-bottom: 6px;
+}
+
+.masthead-title {
+  font-family: 'UnifrakturMaguntia', serif;
+  font-size: 3.8rem; line-height: 1.1; letter-spacing: 0.03em;
+  color: var(--ink);
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.1);
+  margin: 4px 0;
+}
+
+.masthead-subtitle {
+  font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--ink-faded); margin-top: 2px;
+}
+
+.masthead-rule { border: none; border-top: 1px solid var(--ink); margin: 10px 0 0; }
+.masthead-rule-thick { border: none; border-top: 2.5px solid var(--ink); margin: 2px 0 0; }
+
+.masthead-bottom {
+  display: flex; justify-content: space-between;
+  font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink-faded); margin: 6px 0 2px;
+}
+
+.masthead-double-rule { position: relative; height: 6px; }
+.masthead-double-rule::before { content: ''; position: absolute; top: 0; left: 0; right: 0; border-top: 2.5px solid var(--ink); }
+.masthead-double-rule::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; border-top: 2.5px solid var(--ink); }
+
+/* ==================== MAIN HEADLINE ==================== */
+.main-headline {
+  text-align: center; padding: 12px 0 10px;
+}
+.main-headline h1 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900; font-size: 2rem; line-height: 1.15;
+  letter-spacing: 0.03em; text-transform: uppercase; color: var(--ink);
+}
+.main-headline .subtitle {
+  font-family: 'Playfair Display', serif; font-style: italic;
+  font-weight: 400; font-size: 0.82rem; color: var(--ink-light); margin-top: 4px;
+}
+
+/* ==================== INTRO — 3-COL ==================== */
+.intro-cols {
+  column-count: 3; column-gap: 20px;
+  column-rule: 1px solid var(--rule);
+  padding: 8px 0;
+}
+
+/* ==================== 2014 HORSE — LEAD STORY ==================== */
+.lead-story { padding: 8px 0; }
+
+.lead-headline {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900; font-size: 1.55rem;
+  line-height: 1.15; color: var(--ink);
+  text-transform: uppercase; letter-spacing: 0.02em;
+  margin-bottom: 1px;
+}
+
+.lead-byline {
+  font-family: 'Playfair Display', serif;
+  font-style: italic; font-size: 0.7rem;
+  color: var(--ink-faded); margin-bottom: 6px;
+}
+
+.lead-cols {
+  column-count: 2; column-gap: 20px;
+  column-rule: 1px solid var(--rule);
+}
+
+.lead-img {
+  float: left;
+  width: 155px;
+  margin: 0 12px 6px 0;
+  shape-outside: margin-box;
+}
+
+.lead-img img {
+  width: 100%; height: auto;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.1));
+}
+
+/* ==================== 2026 HORSE — SPECIAL EDITION ==================== */
+.horse-feature { padding: 8px 0; }
+
+.horse-feature-box {
+  border: 2px double var(--red-accent);
+  padding: 14px 16px;
+  position: relative;
+}
+
+.horse-feature-box::before {
+  content: 'SPECIAL EDITION';
+  position: absolute;
+  top: -7px; left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(to bottom, #f0ddb0, var(--parchment));
+  padding: 0 10px;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.52rem; font-weight: 700;
+  letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--red-accent); z-index: 1;
+}
+
+.horse-feature-headline {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900; font-size: 1.35rem;
+  color: var(--red-accent); text-transform: uppercase;
+  letter-spacing: 0.03em; text-align: center;
+  margin-bottom: 1px;
+}
+
+.horse-feature-sub {
+  font-family: 'Playfair Display', serif;
+  font-style: italic; font-size: 0.72rem;
+  color: var(--ink-light); text-align: center;
+  margin-bottom: 8px;
+}
+
+.horse-feature-cols {
+  column-count: 2; column-gap: 20px;
+  column-rule: 1px solid var(--rule);
+}
+
+.horse-video-float {
+  float: left;
+  width: 180px;
+  margin: 0 12px 6px 0;
+  background: #000;
+  border-radius: 1px;
+  overflow: hidden;
+  shape-outside: margin-box;
+}
+
+.horse-video-float video {
+  width: 100%; height: auto; display: block;
+  object-fit: contain;
+}
+
+.stamp {
+  position: absolute;
+  bottom: 12px; right: 14px;
+  width: 38px; height: 38px;
+  border: 2px solid var(--red-accent);
+  border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  transform: rotate(-12deg);
+  opacity: 0.5;
+}
+
+.stamp-text {
+  font-size: 0.85rem; color: var(--red-accent);
+  font-weight: 700; line-height: 1; text-align: center;
+}
+
+/* ==================== ZODIAC GRID — 2015-2025 ==================== */
+.section-header {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem; font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ink-faded);
+  text-align: center;
+  padding: 12px 0;
+}
+
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+}
+
+.news-grid .col {
+  padding: 8px 10px;
+  border-left: 1px solid var(--rule);
+}
+
+.news-grid .col:first-child { border-left: none; }
+/* First item after each grid-rule also has no left border */
+.grid-rule + .col { border-left: none; }
+
+.news-grid .col.span-2 { grid-column: span 2; }
+
+.col .col-year {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900; font-size: 1.5rem;
+  line-height: 1; color: var(--ink);
+  opacity: 0.85;
+}
+
+.col .col-headline {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  line-height: 1.15; color: var(--ink);
+  text-transform: uppercase; letter-spacing: 0.02em;
+  margin-bottom: 1px;
+}
+
+.col .col-headline.large { font-size: 1.15rem; }
+.col .col-headline.medium { font-size: 0.92rem; }
+.col .col-headline.small { font-size: 0.8rem; }
+
+.col .col-element {
+  font-family: 'Playfair Display', serif;
+  font-style: italic; font-size: 0.62rem;
+  color: var(--ink-faded); letter-spacing: 0.03em;
+  margin-bottom: 4px;
+}
+
+.col .col-body {
+  font-size: 0.74rem;
+  line-height: 1.55;
+  color: var(--ink-light);
+}
+
+
+.col .col-img {
+  margin: 0 0 4px 0;
+  display: block;
+  line-height: 0;
+}
+
+.col .col-img img {
+  width: 100%; max-width: 200px; height: auto; display: block;
+}
+
+/* Watermark */
+.col .col-watermark {
+  position: absolute;
+  bottom: 4px; right: 6px;
+  font-size: 5rem;
+  font-weight: 700;
+  color: var(--ink);
+  opacity: 0.025;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Row dividers */
+.grid-rule {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--rule);
+  margin: 0;
+}
+
+/* ==================== FADE IN ==================== */
+.ink-in {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.ink-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ==================== RED ENVELOPE ==================== */
+.envelope-section {
+  display: flex; justify-content: center;
+  padding: 40px 0 25px;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+.envelope-section.visible { opacity: 1; }
+.envelope-wrapper { text-align: center; }
+
+.envelope-group {
+  position: relative;
+  width: 700px; height: 420px;
+  margin: 0 auto;
+  cursor: pointer;
+  perspective: 900px;
+}
+
+/* Each envelope card */
+.env-card {
+  position: absolute;
+  width: 160px; height: 230px;
+  left: 50%; top: 130px;
+  margin-left: -80px;
+  background: linear-gradient(170deg, #dd2222 0%, #bb1111 40%, #aa0e0e 100%);
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  transition: transform 600ms cubic-bezier(.2,.9,.2,1), box-shadow 600ms ease, z-index 0ms;
+  transform-style: preserve-3d;
+}
+.env-card::before {
+  content: ''; position: absolute; inset: 6px;
+  border: 1.5px solid var(--gold); border-radius: 6px; pointer-events: none;
+}
+.env-card::after {
+  content: ''; position: absolute; inset: 10px;
+  border: 0.5px solid rgba(200, 168, 78, 0.3); border-radius: 4px; pointer-events: none;
+}
+
+/* 福 on each card */
+.env-card-fu {
+  position: absolute; top: 42%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2.2rem; color: var(--gold); font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2); line-height: 1;
+}
+.env-card-label {
+  position: absolute; top: 64%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.42rem; color: var(--gold); letter-spacing: 0.2em;
+  text-transform: uppercase; opacity: 0.8; white-space: nowrap;
+}
+
+/* Card 1 — Far left: strongly angled, partially cropped, furthest back */
+.envelope-group.open .env-card:nth-child(2) {
+  transform: translateX(-190px) rotateY(40deg);
+  z-index: 1;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
+/* Card 2 — Left inner: moderately angled */
+.envelope-group.open .env-card:nth-child(3) {
+  transform: translateX(-95px) rotateY(20deg);
+  z-index: 2;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+/* Card 3 — Center: front-facing, closest, primary focus */
+.envelope-group.open .env-card:nth-child(4) {
+  transform: translateX(0) rotateY(0deg);
+  z-index: 5;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+}
+/* Card 4 — Right inner: mirrors Card 2 */
+.envelope-group.open .env-card:nth-child(5) {
+  transform: translateX(95px) rotateY(-20deg);
+  z-index: 2;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+/* Card 5 — Far right: mirrors Card 1, partially cropped */
+.envelope-group.open .env-card:nth-child(6) {
+  transform: translateX(190px) rotateY(-40deg);
+  z-index: 1;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
+
+/* Lucky PNG — pops up above envelopes */
+.envelope-lucky {
+  position: absolute;
+  left: 50%; top: -20px;
+  transform: translate(-50%, 30px) scale(0.5);
+  opacity: 0;
+  transition:
+    transform 500ms cubic-bezier(.2,.9,.2,1) 200ms,
+    opacity 300ms ease 200ms;
+  pointer-events: none;
+  z-index: 10;
+}
+.envelope-lucky img {
+  width: 180px; height: auto; display: block;
+  filter: drop-shadow(0 6px 20px rgba(0,0,0,0.3));
+}
+.envelope-group.open .envelope-lucky {
+  opacity: 1;
+  transform: translate(-50%, -10px) scale(1);
+}
+
+.envelope-hint {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 0.68rem; color: var(--ink-faded);
+  margin-top: 10px; opacity: 0.7; transition: opacity 0.5s;
+}
+.envelope-group.open ~ .envelope-hint { opacity: 0; }
+
+/* ==================== FOOTER ==================== */
+.gazette-footer {
+  text-align: center; padding: 10px 0 30px;
+  border-top: 2px solid var(--ink); margin: 6px 0 0;
+  font-size: 0.55rem; color: var(--ink-faded);
+  letter-spacing: 0.15em; text-transform: uppercase;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 700px) {
+  .newspaper { margin: 10px; }
+  .content { padding: 0 14px; }
+  .masthead-title { font-size: 2.2rem; }
+  .main-headline h1 { font-size: 1.3rem; }
+  .intro-cols { column-count: 1; }
+  .lead-cols { column-count: 1; }
+  .lead-img { width: 120px; }
+  .horse-feature-cols { column-count: 1; }
+  .horse-video-float { width: 100%; float: none; margin: 0 0 8px 0; }
+  .news-grid { grid-template-columns: 1fr 1fr; }
+  .news-grid .col.span-3,
+  .news-grid .col.span-4 { grid-column: span 2; }
+  .col.span-3 .col-body.inner-cols,
+  .col.span-4 .col-body.inner-cols { column-count: 2; }
+  .news-grid .col { border-left: none; }
+  .gazette-footer { padding: 10px 0 20px; }
+}
+
+@media (max-width: 480px) {
+  .news-grid { grid-template-columns: 1fr; }
+  .news-grid .col.span-2,
+  .news-grid .col.span-3,
+  .news-grid .col.span-4 { grid-column: span 1; }
+  .col.span-2 .col-body.inner-cols,
+  .col.span-3 .col-body.inner-cols,
+  .col.span-4 .col-body.inner-cols { column-count: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- ========== DESK INTRO ========== -->
+<section class="opening-scene">
+  <img src="background.png" alt="Vintage desk scene">
+  <div class="opening-text">
+    <div class="opening-year">2026</div>
+    <div class="opening-title">Year of the Horse</div>
+    <div class="opening-sub">馬年快樂 &bull; Happy Chinese Lunar New Year</div>
+  </div>
+  <div class="opening-scroll-hint">Scroll to read</div>
+</section>
+
+<div class="opening-spacer"></div>
+
+<div class="newspaper">
+  <div class="paper-texture"></div>
+  <div class="edge-burn"></div>
+  <div class="fold-crease" style="top: 350px"></div>
+
+  <div class="content">
+
+    <!-- ========== MASTHEAD ========== -->
+    <div class="masthead-section ink-in">
+      <header class="masthead">
+        <div class="masthead-top">
+          <span>Vol. XII, No. 7</span>
+          <span>Est. Year of the Horse, 2026</span>
+          <span>Price: 1 Lucky Coin</span>
+        </div>
+        <div class="masthead-title">The Zodiac Gazette</div>
+        <div class="masthead-subtitle">A Chronicle of the Celestial Cycle &mdash; Published Once Every Twelve Years</div>
+        <hr class="masthead-rule">
+        <hr class="masthead-rule-thick">
+        <div class="masthead-bottom">
+          <span>Monday, February 16, 2026</span>
+          <span>歲次丙午 &bull; Year of the Fire Horse</span>
+          <span>Chinese Lunar New Year Edition</span>
+        </div>
+        <div class="masthead-double-rule"></div>
+      </header>
+    </div>
+
+    <!-- ========== MAIN HEADLINE ========== -->
+    <section class="main-headline ink-in">
+      <h1>The Year of the Horse:<br>From 2014 to 2026</h1>
+      <p class="subtitle">A Twelve-Year Journey Through the Chinese Zodiac, From One Horse Year to the Next</p>
+    </section>
+    <hr class="rule-thin">
+
+    <!-- ========== INTRO — 3 COLUMNS ========== -->
+    <div class="intro-cols col-text ink-in" style="padding: 8px 0;">
+      <p><span class="dropcap">T</span>welve years have passed since the Horse last galloped across the celestial stage. In the ancient Chinese zodiac, a complete cycle of twelve animals must parade through the heavens before any sign returns. The year 2014 saw the last Year of the Horse &mdash; a time of energy, passion, and unbridled ambition. Now, as we stand at the threshold of 2026, the Horse prepares to return, having waited patiently through the reigns of Goat, Monkey, Rooster, Dog, Pig, Rat, Ox, Tiger, Rabbit, Dragon, and Snake. Each year carried its own character, its own wisdom, its own story. Here we chronicle that grand procession, one sign at a time, as told through the pages of this gazette.</p>
+    </div>
+
+    <!-- ========== 2026 HORSE — SPECIAL EDITION ========== -->
+    <hr class="rule-thick">
+    <article class="horse-feature ink-in ink-in">
+      <div class="horse-feature-box">
+        <div class="horse-feature-headline">2026 &mdash; Year of the Fire Horse</div>
+        <div class="horse-feature-sub">丙午年 &bull; The Seventh Sign Gallops Home</div>
+        <div class="horse-feature-cols col-text">
+          <figure class="horse-video-float">
+            <video src="Horse%20video.mov" autoplay muted loop playsinline></video>
+          </figure>
+          <p>After twelve long years, the Horse gallops back to the celestial stage with unmatched vigour and spirit. The Year of the Fire Horse is the most dynamic of all Horse years &mdash; a combustion of passion, independence, and irrepressible energy. Those born under the Horse sign are known for their warmth, their love of freedom, and their ability to inspire those around them.</p>
+          <p>The Fire element adds intensity and charisma to the Horse's already spirited nature. This is a year for bold action, for pursuing dreams long deferred, and for running toward the horizon with full confidence. The Horse does not tiptoe &mdash; it charges. As we welcome 2026, let us embrace that fearless gallop and ride into whatever adventures await.</p>
+        </div>
+        <div class="stamp">
+          <span class="stamp-text">馬<br>年</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- ========== THE CHRONICLE — 2014-2025 ========== -->
+    <div class="rule-double"></div>
+    <div class="section-header ink-in">The Twelve-Year Chronicle &bull; 2014 &ndash; 2025</div>
+    <hr class="rule-thin">
+
+    <!-- ========== 2014 HORSE — LEAD STORY ========== -->
+    <article class="lead-story ink-in">
+      <div class="lead-headline">2014 &mdash; Year of the Wood Horse &bull; 馬</div>
+      <div class="lead-byline">The Seventh Sign Sets the Stage for a Twelve-Year Journey</div>
+      <div class="lead-cols col-text">
+        <figure class="lead-img">
+          <img src="Image/horse%202014.png" alt="Horse">
+        </figure>
+        <p>The last Year of the Horse blazed with energy, passion, and unbridled ambition. Those born under this sign are free-spirited, adventurous, and fiercely independent. The year rewarded courage, movement, and the willingness to charge headlong into the unknown &mdash; setting the stage for the twelve-year journey that was to follow.</p>
+        <p>In the Chinese five-element cycle, 2014 was governed by Wood, lending the Horse a collaborative, growth-oriented energy. It was a year when new ventures took root, when travellers set forth on long-postponed journeys, and when the bold were favoured by fortune. As the Horse year drew to a close, its hoofbeats echoed into the distance, leaving behind a legacy of daring and the quiet promise of return.</p>
+      </div>
+    </article>
+    <hr class="rule-thin">
+
+    <div class="news-grid">
+
+      <!-- ROW 1: 2015-2017 -->
+      <div class="col ink-in" style="position:relative">
+        <span class="col-watermark">羊</span>
+        <div class="col-year">2015</div>
+        <div class="col-headline small">The Goat</div>
+        <div class="col-element">Wood Goat &middot; 羊</div>
+        <div class="col-body">
+          <figure class="col-img"><img src="Image/Goat.png" alt="Goat"></figure>
+          The Goat ushered in a year of gentleness and artistic sensibility. Those born under this sign are known for compassion, creativity, and quiet determination. The year favoured the arts and encouraged empathy.
+        </div>
+      </div>
+
+      <div class="col ink-in" style="position:relative">
+        <span class="col-watermark">猴</span>
+        <div class="col-year">2016</div>
+        <div class="col-headline small">The Monkey</div>
+        <div class="col-element">Fire Monkey &middot; 猴</div>
+        <div class="col-body">
+          <figure class="col-img"><img src="Image/Monkey.png" alt="Monkey"></figure>
+          Clever, quick-witted, and endlessly inventive &mdash; the Monkey year was one of ingenuity and mischief. It rewarded those who thought differently and solved old problems with new tricks.
+        </div>
+      </div>
+
+      <div class="col ink-in" style="position:relative">
+        <span class="col-watermark">雞</span>
+        <div class="col-year">2017</div>
+        <div class="col-headline small">The Rooster</div>
+        <div class="col-element">Fire Rooster &middot; 雞</div>
+        <div class="col-body">
+          <figure class="col-img"><img src="Image/Rooster.png" alt="Rooster"></figure>
+          The Rooster crowed at dawn and demanded punctuality, honesty, and hard work. A year of discipline and detail, when the meticulous were rewarded and shortcuts found nowhere to hide.
+        </div>
+      </div>
+
+      <!-- ROW DIVIDER -->
+      <div class="grid-rule"></div>
+
+      <!-- ROW 2: 2018-2020 -->
+      <div class="col ink-in" style="position:relative">
+        <span class="col-watermark">狗</span>
+        <div class="col-year">2018</div>
+        <div class="col-headline small">The Dog</div>
+        <div class="col-element">Earth Dog &middot; 狗</div>
+        <div class="col-body">
+          <figure class="col-img"><img src="Image/Dog.png" alt="Dog"></figure>
+          Loyal, honest, and steadfast &mdash; the Dog year championed fidelity and justice. True friends revealed themselves, and the faithful heart proved mightier than the cunning mind.
+        </div>
+      </div>
+
+      <div class="col ink-in" style="position:relative">
+        <span class="col-watermark">豬</span>
+        <div class="col-year">2019</div>
+        <div class="col-headline small">The Pig</div>
+        <div class="col-element">Earth Pig &middot; 豬</div>
+        <div class="col-body">
+          <figure class="col-img"><img src="Image/Pig.png" alt="Pig"></figure>
+          The Pig brought abundance, generosity, and good fortune to close out the cycle's first half. Kind-hearted and diligent, this year encouraged indulgence in life's simple pleasures.
+        </div>
+      </div>
+
+      <div class="col ink-in" style="position:relative">
+        <span class="col-watermark">鼠</span>
+        <div class="col-year">2020</div>
+        <div class="col-headline small">The Rat</div>
+        <div class="col-element">Metal Rat &middot; 鼠</div>
+        <div class="col-body">
+          <figure class="col-img"><img src="Image/Rat.png" alt="Rat"></figure>
+          Beginning a new twelve-year cycle, the Rat arrived with resourcefulness and adaptability that proved desperately needed. This year tested the world's resilience like no other.
+        </div>
+      </div>
+
+      <!-- ROW DIVIDER -->
+      <div class="grid-rule"></div>
+
+      <!-- ROW 3: 2021-2023 -->
+      <div class="col ink-in" style="position:relative">
+        <span class="col-watermark">牛</span>
+        <div class="col-year">2021</div>
+        <div class="col-headline small">The Ox</div>
+        <div class="col-element">Metal Ox &middot; 牛</div>
+        <div class="col-body">
+          <figure class="col-img"><img src="Image/Ox.png" alt="Ox"></figure>
+          Steady, powerful, and methodical &mdash; the Ox shouldered the world's burdens without complaint. A year of patience, when slow progress proved more valuable than any flash of brilliance.
+        </div>
+      </div>
+
+      <div class="col ink-in" style="position:relative">
+        <span class="col-watermark">虎</span>
+        <div class="col-year">2022</div>
+        <div class="col-headline small">The Tiger</div>
+        <div class="col-element">Water Tiger &middot; 虎</div>
+        <div class="col-body">
+          <figure class="col-img"><img src="Image/Tiger.png" alt="Tiger"></figure>
+          The Tiger bounded forth with courage and competitive fire. This year ignited bravery in the timid and ambition in the complacent. Bold ventures were launched under its fearless watch.
+        </div>
+      </div>
+
+      <div class="col ink-in" style="position:relative">
+        <span class="col-watermark">兔</span>
+        <div class="col-year">2023</div>
+        <div class="col-headline small">The Rabbit</div>
+        <div class="col-element">Water Rabbit &middot; 兔</div>
+        <div class="col-body">
+          <figure class="col-img"><img src="Image/Rabbit.png" alt="Rabbit"></figure>
+          After the Tiger's roar came the Rabbit's gentle grace. This year prized diplomacy over confrontation, elegance over force, and found lasting peace in the still, quiet moments.
+        </div>
+      </div>
+
+    </div><!-- /news-grid -->
+
+    <hr class="rule-thin" style="margin:0;">
+
+    <!-- ROW 4: 2024-2025 — inside main grid -->
+    <div class="news-grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="col ink-in" style="position:relative; border-left:none; border-right:1px solid var(--rule);">
+        <span class="col-watermark">龍</span>
+        <div class="col-year">2024</div>
+        <div class="col-headline small">The Dragon</div>
+        <div class="col-element">Wood Dragon &middot; 龍</div>
+        <div class="col-body" style="display:flex; align-items:flex-start; gap:10px;">
+          <figure class="col-img" style="margin:0; flex-shrink:0; width:auto;"><img src="Image/Dragon.png" alt="Dragon" style="width:140px; max-width:140px;"></figure>
+          <span style="padding-top:6px;">Most auspicious of all the signs! The Dragon descended from the clouds, breathing fire and fortune. This year brought grand ambitions to life and showered luck upon the bold and the daring.</span>
+        </div>
+      </div>
+
+      <div class="col ink-in" style="position:relative; border-left:none;">
+        <span class="col-watermark">蛇</span>
+        <div class="col-year">2025</div>
+        <div class="col-headline small">The Snake &mdash; The Final Act</div>
+        <div class="col-element">Wood Snake &middot; 蛇</div>
+        <div class="col-body" style="display:flex; align-items:flex-start; gap:10px;">
+          <figure class="col-img" style="margin:0; flex-shrink:0; width:auto;"><img src="Image/Snake.png" alt="Snake" style="width:140px; max-width:140px;"></figure>
+          <span style="padding-top:6px;">Wise, intuitive, and enigmatic &mdash; the Snake slithered in with quiet intelligence. A year of deep thinking, strategic planning, and hidden revelations before the Horse's return.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule-double"></div>
+
+    <!-- ========== RED ENVELOPE ========== -->
+    <section class="envelope-section">
+      <div class="envelope-wrapper">
+        <div class="envelope-group" id="envelope">
+          <div class="envelope-lucky">
+            <img src="Lucky%20in%20chinese.png" alt="Lucky">
+          </div>
+          <div class="env-card"><span class="env-card-fu">福</span><span class="env-card-label">Good Fortune</span></div>
+          <div class="env-card"><span class="env-card-fu">福</span><span class="env-card-label">Good Fortune</span></div>
+          <div class="env-card"><span class="env-card-fu">福</span><span class="env-card-label">Good Fortune</span></div>
+          <div class="env-card"><span class="env-card-fu">福</span><span class="env-card-label">Good Fortune</span></div>
+          <div class="env-card"><span class="env-card-fu">福</span><span class="env-card-label">Good Fortune</span></div>
+        </div>
+        <p class="envelope-hint">Click to open your red envelope</p>
+      </div>
+    </section>
+
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="gazette-footer">
+      <p>The Zodiac Gazette &bull; Published at the Turn of the Horse Year</p>
+    </footer>
+
+  </div><!-- /content -->
+</div><!-- /newspaper -->
+
+<script>
+// Noise texture
+(function() {
+  const size = 256, canvas = document.createElement('canvas');
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const imageData = ctx.createImageData(size, size);
+  const data = imageData.data;
+  for (let i = 0; i < data.length; i += 4) {
+    const v = Math.floor(Math.random() * 120 + 100);
+    data[i] = Math.min(255, v + Math.floor(Math.random() * 20));
+    data[i+1] = Math.min(255, v + Math.floor(Math.random() * 8));
+    data[i+2] = Math.max(0, v - Math.floor(Math.random() * 15));
+    data[i+3] = Math.random() < 0.08 ? Math.floor(Math.random() * 60 + 30) : Math.floor(Math.random() * 30 + 8);
+  }
+  ctx.putImageData(imageData, 0, 0);
+  document.querySelector('.newspaper').style.setProperty('--noise-texture', `url(${canvas.toDataURL('image/png')})`);
+})();
+
+// Opening scene fades as you scroll down
+(function() {
+  const scene = document.querySelector('.opening-scene');
+  const vh = window.innerHeight;
+  window.addEventListener('scroll', function() {
+    const t = Math.min(window.scrollY / (vh * 0.7), 1);
+    scene.style.opacity = 1 - t;
+  }, { passive: true });
+})();
+
+// Ink-in on scroll — sections appear as you scroll past the opening scene
+const inkObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      inkObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.ink-in, .envelope-section').forEach(el => {
+  inkObserver.observe(el);
+});
+
+// Red envelope — click to fan out and reveal lucky character
+document.getElementById('envelope').addEventListener('click', function() {
+  this.classList.toggle('open');
+});
+</script>
+
+</body>
+</html>
